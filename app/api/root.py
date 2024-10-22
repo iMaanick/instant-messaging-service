@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
 from .auth import auth_router
-from .index import index_router
+from .chat import chat_router
+# from .index import index_router
 from ..application.auth.auth import auth_backend
 from ..application.auth.fastapi_users import fastapi_users
 from ..application.auth.models import UserRead, UserCreate
@@ -26,6 +27,11 @@ root_router.include_router(
     tags=["test"]
 
 )
+
 root_router.include_router(
-    index_router,
+    chat_router,
 )
+
+# root_router.include_router(
+#     index_router,
+# )
