@@ -55,7 +55,6 @@ async def chat_websocket(
 
     result = await session.execute(select(UserDB).where(UserDB.id == recipient_id))
     recipient_user = result.scalars().first()
-    print("recipient_user: ", recipient_user)
     if recipient_user is None:
         return
 
@@ -103,12 +102,15 @@ async def chat_page(
         recipient_id: int,
         session: AsyncSession = Depends(Stub(AsyncSession)),
         user: UserDB = Depends(fastapi_users.current_user(optional=True))
-
 ):
+    if user is None:
+        return RedirectResponse(url="/login")
+
     result = await session.execute(select(UserDB).where(UserDB.id == recipient_id))
     recipient_user = result.scalars().first()
     if recipient_user is None:
         return RedirectResponse(url="/")
+
     return templates.TemplateResponse("chat.html", {"request": request,
                                                     "recipient_id": recipient_id,
                                                     "current_user": user,

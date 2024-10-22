@@ -1,243 +1,3 @@
-<!--&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;-->
-<!--&lt;!&ndash;<html lang="en">&ndash;&gt;-->
-<!--&lt;!&ndash;<head>&ndash;&gt;-->
-<!--&lt;!&ndash;    <meta charset="UTF-8">&ndash;&gt;-->
-<!--&lt;!&ndash;    <meta name="viewport" content="width=device-width, initial-scale=1.0">&ndash;&gt;-->
-<!--&lt;!&ndash;    <title>Chat with User {{ recipient_id }}</title>&ndash;&gt;-->
-<!--&lt;!&ndash;    <style>&ndash;&gt;-->
-<!--&lt;!&ndash;        .chat-container {&ndash;&gt;-->
-<!--&lt;!&ndash;            width: 100%;&ndash;&gt;-->
-<!--&lt;!&ndash;            height: 400px;&ndash;&gt;-->
-<!--&lt;!&ndash;            border: 1px solid black;&ndash;&gt;-->
-<!--&lt;!&ndash;            padding: 10px;&ndash;&gt;-->
-<!--&lt;!&ndash;            overflow-y: scroll;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .message {&ndash;&gt;-->
-<!--&lt;!&ndash;            margin: 10px 0;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .message.from-me {&ndash;&gt;-->
-<!--&lt;!&ndash;            text-align: right;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;    </style>&ndash;&gt;-->
-<!--&lt;!&ndash;</head>&ndash;&gt;-->
-<!--&lt;!&ndash;<body>&ndash;&gt;-->
-<!--&lt;!&ndash;    <div class="chat-container" id="chat-box">&ndash;&gt;-->
-<!--&lt;!&ndash;    </div>&ndash;&gt;-->
-<!--&lt;!&ndash;    <input type="text" id="message-input" placeholder="Введите сообщение...">&ndash;&gt;-->
-<!--&lt;!&ndash;    <button onclick="sendMessage()">Отправить</button>&ndash;&gt;-->
-
-<!--&lt;!&ndash;    <script>&ndash;&gt;-->
-<!--&lt;!&ndash;        const ws = new WebSocket(`ws://localhost:8000/chat/ws/{{ recipient_id }}`);&ndash;&gt;-->
-
-<!--&lt;!&ndash;        ws.onmessage = function(event) {&ndash;&gt;-->
-<!--&lt;!&ndash;            const messageData = event.data;&ndash;&gt;-->
-<!--&lt;!&ndash;            const chatBox = document.getElementById('chat-box');&ndash;&gt;-->
-<!--&lt;!&ndash;            const messageElement = document.createElement('div');&ndash;&gt;-->
-<!--&lt;!&ndash;            messageElement.classList.add('message');&ndash;&gt;-->
-<!--&lt;!&ndash;            messageElement.textContent = messageData;&ndash;&gt;-->
-<!--&lt;!&ndash;            chatBox.appendChild(messageElement);&ndash;&gt;-->
-<!--&lt;!&ndash;            chatBox.scrollTop = chatBox.scrollHeight;&ndash;&gt;-->
-<!--&lt;!&ndash;        };&ndash;&gt;-->
-
-<!--&lt;!&ndash;        function sendMessage() {&ndash;&gt;-->
-<!--&lt;!&ndash;            const input = document.getElementById('message-input');&ndash;&gt;-->
-<!--&lt;!&ndash;            const message = input.value;&ndash;&gt;-->
-<!--&lt;!&ndash;            input.value = '';&ndash;&gt;-->
-
-<!--&lt;!&ndash;            ws.send(message);&ndash;&gt;-->
-
-<!--&lt;!&ndash;            // const chatBox = document.getElementById('chat-box');&ndash;&gt;-->
-<!--&lt;!&ndash;            // const messageElement = document.createElement('div');&ndash;&gt;-->
-<!--&lt;!&ndash;            // messageElement.classList.add('message', 'from-me');&ndash;&gt;-->
-<!--&lt;!&ndash;            // messageElement.textContent = "You: " + message;&ndash;&gt;-->
-<!--&lt;!&ndash;            // chatBox.appendChild(messageElement);&ndash;&gt;-->
-<!--&lt;!&ndash;            // chatBox.scrollTop = chatBox.scrollHeight;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;    </script>&ndash;&gt;-->
-<!--&lt;!&ndash;</body>&ndash;&gt;-->
-<!--&lt;!&ndash;</html>&ndash;&gt;-->
-<!--<!DOCTYPE html>-->
-<!--<html lang="en">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-<!--    <title>Chat with User {{ recipient_id }}</title>-->
-<!--    <style>-->
-<!--        body {-->
-<!--            font-family: 'Arial', sans-serif;-->
-<!--            background-color: #f4f4f9;-->
-<!--            margin: 0;-->
-<!--            padding: 0;-->
-<!--            display: flex;-->
-<!--            justify-content: center;-->
-<!--            align-items: center;-->
-<!--            height: 100vh;-->
-<!--        }-->
-
-<!--        .chat-container {-->
-<!--            width: 100%;-->
-<!--            max-width: 600px;-->
-<!--            height: 80vh;-->
-<!--            background-color: #fff;-->
-<!--            border-radius: 10px;-->
-<!--            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);-->
-<!--            display: flex;-->
-<!--            flex-direction: column;-->
-<!--            overflow: hidden;-->
-<!--        }-->
-
-<!--        .chat-header {-->
-<!--            background-color: #4a76a8;-->
-<!--            color: white;-->
-<!--            padding: 15px;-->
-<!--            text-align: center;-->
-<!--            font-size: 18px;-->
-<!--            font-weight: bold;-->
-<!--            border-top-left-radius: 10px;-->
-<!--            border-top-right-radius: 10px;-->
-<!--        }-->
-
-<!--        .chat-box {-->
-<!--            flex-grow: 1;-->
-<!--            padding: 15px;-->
-<!--            overflow-y: auto;-->
-<!--            background-color: #f1f1f1;-->
-<!--        }-->
-
-<!--        .message {-->
-<!--            margin: 10px 0;-->
-<!--            padding: 10px 15px;-->
-<!--            border-radius: 20px;-->
-<!--            max-width: 80%;-->
-<!--            display: inline-block;-->
-<!--            clear: both;-->
-<!--        }-->
-
-<!--        .message.from-me {-->
-<!--            background-color: #4a76a8;-->
-<!--            color: white;-->
-<!--            margin-left: auto;-->
-<!--        }-->
-
-<!--        .message.from-other {-->
-<!--            background-color: #e5e5ea;-->
-<!--            color: black;-->
-<!--        }-->
-
-<!--        .chat-footer {-->
-<!--            display: flex;-->
-<!--            padding: 15px;-->
-<!--            background-color: #f9f9f9;-->
-<!--            border-top: 1px solid #e0e0e0;-->
-<!--        }-->
-
-<!--        .chat-footer input {-->
-<!--            flex-grow: 1;-->
-<!--            padding: 10px;-->
-<!--            font-size: 16px;-->
-<!--            border: 1px solid #ddd;-->
-<!--            border-radius: 20px;-->
-<!--            outline: none;-->
-<!--        }-->
-
-<!--        .chat-footer button {-->
-<!--            margin-left: 10px;-->
-<!--            padding: 10px 20px;-->
-<!--            background-color: #4a76a8;-->
-<!--            color: white;-->
-<!--            border: none;-->
-<!--            border-radius: 20px;-->
-<!--            cursor: pointer;-->
-<!--            transition: background-color 0.3s ease;-->
-<!--        }-->
-
-<!--        .chat-footer button:hover {-->
-<!--            background-color: #3a5d85;-->
-<!--        }-->
-
-<!--        /* Анимация появления сообщения */-->
-<!--        .message {-->
-<!--            opacity: 0;-->
-<!--            animation: fadeIn 0.5s forwards;-->
-<!--        }-->
-
-<!--        @keyframes fadeIn {-->
-<!--            from { opacity: 0; transform: translateY(20px); }-->
-<!--            to { opacity: 1; transform: translateY(0); }-->
-<!--        }-->
-
-<!--        /* Адаптивный дизайн */-->
-<!--        @media (max-width: 600px) {-->
-<!--            .chat-container {-->
-<!--                width: 100%;-->
-<!--                height: 100vh;-->
-<!--                border-radius: 0;-->
-<!--            }-->
-
-<!--            .chat-footer button {-->
-<!--                padding: 10px;-->
-<!--            }-->
-<!--        }-->
-<!--    </style>-->
-<!--</head>-->
-<!--<body>-->
-<!--    <div class="chat-container">-->
-<!--        <div class="chat-header">-->
-<!--            Chat with User {{ recipient_id }}-->
-<!--        </div>-->
-<!--        <div class="chat-box" id="chat-box">-->
-<!--            &lt;!&ndash; Сообщения будут отображаться здесь &ndash;&gt;-->
-<!--        </div>-->
-<!--        <div class="chat-footer">-->
-<!--            <input type="text" id="message-input" placeholder="Введите сообщение...">-->
-<!--            <button onclick="sendMessage()">Отправить</button>-->
-<!--        </div>-->
-<!--    </div>-->
-
-<!--<script>-->
-<!--    const ws = new WebSocket(`ws://localhost:8000/chat/ws/{{ recipient_id }}`);-->
-
-<!--    ws.onmessage = function(event) {-->
-<!--        const messageData = event.data.split(':'); // Разделяем по ':'-->
-<!--        const senderId = messageData[0]; // Получаем ID отправителя-->
-<!--        const messageText = messageData.slice(1).join(':'); // Получаем текст сообщения (на случай, если в нем есть ':')-->
-
-<!--        const chatBox = document.getElementById('chat-box');-->
-<!--        const messageElement = document.createElement('div');-->
-
-<!--        // Проверяем, является ли сообщение от текущего пользователя-->
-<!--        if (senderId === "{{ current_user.id }}") {-->
-<!--            messageElement.classList.add('message', 'from-me');-->
-<!--            messageElement.textContent = "You: " + messageText;-->
-<!--        } else {-->
-<!--            messageElement.classList.add('message', 'from-other');-->
-<!--            messageElement.textContent = messageData[0] + ": " + messageText; // Добавляем имя отправителя-->
-<!--        }-->
-
-<!--        chatBox.appendChild(messageElement);-->
-<!--        chatBox.scrollTop = chatBox.scrollHeight;-->
-<!--    };-->
-
-<!--    function sendMessage() {-->
-<!--        const input = document.getElementById('message-input');-->
-<!--        const message = input.value;-->
-<!--        input.value = ''; // Очищаем поле после отправки-->
-
-<!--        ws.send(message);-->
-
-<!--        // Отображение отправленного сообщения-->
-<!--        const chatBox = document.getElementById('chat-box');-->
-<!--        const messageElement = document.createElement('div');-->
-<!--        messageElement.classList.add('message', 'from-me');-->
-<!--        messageElement.textContent = "You: " + message;-->
-<!--        chatBox.appendChild(messageElement);-->
-<!--        chatBox.scrollTop = chatBox.scrollHeight;-->
-<!--    }-->
-<!--</script>-->
-
-<!--</body>-->
-<!--</html>-->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -286,27 +46,27 @@
             background-color: #f1f1f1;
             display: flex;
             flex-direction: column;
-            gap: 10px; /* Расстояние между сообщениями */
+            gap: 10px;
         }
 
         .message {
             padding: 10px 15px;
             border-radius: 20px;
             max-width: 80%;
-            display: block; /* Делаем сообщения блочными */
-            word-wrap: break-word; /* Переносим длинные слова */
+            display: block;
+            word-wrap: break-word;
         }
 
         .message.from-me {
             background-color: #4a76a8;
             color: white;
-            margin-left: auto; /* Сообщения от себя справа */
+            margin-left: auto;
         }
 
         .message.from-other {
             background-color: #e5e5ea;
             color: black;
-            margin-right: auto; /* Сообщения от других слева */
+            margin-right: auto;
         }
 
         .chat-footer {
@@ -340,7 +100,6 @@
             background-color: #3a5d85;
         }
 
-        /* Анимация появления сообщения */
         .message {
             opacity: 0;
             animation: fadeIn 0.5s forwards;
@@ -371,7 +130,6 @@
             Chat with User {{ recipient_id }}
         </div>
         <div class="chat-box" id="chat-box">
-            <!-- Сообщения будут отображаться здесь -->
         </div>
         <div class="chat-footer">
             <input type="text" id="message-input" placeholder="Введите сообщение...">
@@ -379,97 +137,42 @@
         </div>
     </div>
 
-<!--<script>-->
-<!--    const ws = new WebSocket(`ws://localhost:8000/chat/ws/{{ recipient_id }}`);-->
-
-<!--    ws.onmessage = function(event) {-->
-<!--        const messageData = event.data.split(':'); // Разделяем по ':'-->
-<!--        const senderId = messageData[0]; // Получаем ID отправителя-->
-<!--        const messageText = messageData.slice(1).join(':'); // Получаем текст сообщения (на случай, если в нем есть ':')-->
-
-<!--        const chatBox = document.getElementById('chat-box');-->
-<!--        const messageElement = document.createElement('div');-->
-
-<!--        // Проверяем, является ли сообщение от текущего пользователя-->
-<!--        if (senderId === "{{ current_user.id }}") {-->
-<!--            messageElement.classList.add('message', 'from-me');-->
-<!--            messageElement.textContent = "You: " + messageText;-->
-<!--        } else {-->
-<!--            messageElement.classList.add('message', 'from-other');-->
-<!--            messageElement.textContent = messageData[0] + ": " + messageText; // Добавляем имя отправителя-->
-<!--        }-->
-
-<!--        chatBox.appendChild(messageElement); // Добавляем новое сообщение вниз-->
-<!--        chatBox.scrollTop = chatBox.scrollHeight; // Прокручиваем вниз-->
-<!--    };-->
-
-<!--    function sendMessage() {-->
-<!--        const input = document.getElementById('message-input');-->
-<!--        const message = input.value;-->
-<!--        input.value = ''; // Очищаем поле после отправки-->
-
-<!--        ws.send(message);-->
-
-<!--        // Отображение отправленного сообщения-->
-<!--        const chatBox = document.getElementById('chat-box');-->
-<!--        const messageElement = document.createElement('div');-->
-<!--        messageElement.classList.add('message', 'from-me');-->
-<!--        messageElement.textContent = "You: " + message;-->
-<!--        chatBox.appendChild(messageElement); // Добавляем новое сообщение вниз-->
-<!--        chatBox.scrollTop = chatBox.scrollHeight; // Прокручиваем вниз-->
-<!--    }-->
-<!--</script>-->
 
 <script>
     const ws = new WebSocket(`ws://localhost:8000/chat/ws/{{ recipient_id }}`);
 
-    // Обработка полученных сообщений
     ws.onmessage = function(event) {
-        // const currentUserId = {{ current_user_id }};
-        // console.log(currentUserId)
-        const data = JSON.parse(event.data); // Разбираем JSON
+        const data = JSON.parse(event.data);
         const senderId = data.sender_id;
         const messageText = data.message;
 
         const chatBox = document.getElementById('chat-box');
         const messageElement = document.createElement('div');
-        // Проверяем, является ли сообщение от текущего пользователя
-        console.log(data)
         if (senderId === {{ current_user.id }}) {
             messageElement.classList.add('message', 'from-me');
             messageElement.textContent = "You: " + messageText;
         } else {
-            console.log("here")
             messageElement.classList.add('message', 'from-other');
-            messageElement.textContent = data.sender_name + ": " + messageText; // Используем имя отправителя
+            messageElement.textContent = data.sender_name + ": " + messageText;
         }
 
-        chatBox.appendChild(messageElement); // Добавляем сообщение в чат
-        chatBox.scrollTop = chatBox.scrollHeight; // Прокручиваем чат вниз
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
     };
 
-    // Отправка сообщения
     function sendMessage() {
         const input = document.getElementById('message-input');
         const message = input.value;
-        input.value = ''; // Очищаем поле после отправки
+        input.value = '';
 
-        // Формируем объект для отправки
         const messageData = {
             sender_id: {{ current_user.id }},
             message: message,
             recipient_id: {{ recipient_id }}
         };
 
-        ws.send(JSON.stringify(messageData)); // Отправляем объект через WebSocket
+        ws.send(JSON.stringify(messageData));
 
-        // // Отображение отправленного сообщения
-        // const chatBox = document.getElementById('chat-box');
-        // const messageElement = document.createElement('div');
-        // messageElement.classList.add('message', 'from-me');
-        // messageElement.textContent = "You: " + message;
-        // chatBox.appendChild(messageElement); // Добавляем сообщение в чат
-        // chatBox.scrollTop = chatBox.scrollHeight; // Прокручиваем вниз
     }
 </script>
 
