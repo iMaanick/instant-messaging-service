@@ -1,12 +1,12 @@
 import json
-from typing import Dict, List
+from typing import Dict, List, Annotated
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Request
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
+from app.adapters.sqlalchemy_db.gateway.user_sql_gateway import UserSqlaGateway
 from app.adapters.sqlalchemy_db.models import MessageDB, UserDB
 from app.api.depends_stub import Stub
 from app.application.auth.auth import auth_backend
@@ -47,14 +47,15 @@ manager = ConnectionManager()
 async def chat_websocket(
         websocket: WebSocket,
         recipient_id: int,
+        database: Annotated[UserSqlaGateway, Depends(Stub(UserSqlaGateway))],
         session: AsyncSession = Depends(Stub(AsyncSession)),
         user_manager: UserManager = Depends(Stub(UserManager)),
 ):
     cookie = websocket.cookies.get("fastapiusersauth")
     current_user = await auth_backend.get_strategy().read_token(cookie, user_manager)
 
-    result = await session.execute(select(UserDB).where(UserDB.id == recipient_id))
-    recipient_user = result.scalars().first()
+    recipient_user = await database.get_user_by_id(recipient_id)
+
     if recipient_user is None:
         return
 
@@ -100,14 +101,14 @@ async def chat_websocket(
 async def chat_page(
         request: Request,
         recipient_id: int,
-        session: AsyncSession = Depends(Stub(AsyncSession)),
+        database: Annotated[UserSqlaGateway, Depends(Stub(UserSqlaGateway))],
         user: UserDB = Depends(fastapi_users.current_user(optional=True))
 ):
+    print("12123///////////////////////////////////")
     if user is None:
         return RedirectResponse(url="/login")
+    recipient_user = await database.get_user_by_id(recipient_id)
 
-    result = await session.execute(select(UserDB).where(UserDB.id == recipient_id))
-    recipient_user = result.scalars().first()
     if recipient_user is None:
         return RedirectResponse(url="/")
 
