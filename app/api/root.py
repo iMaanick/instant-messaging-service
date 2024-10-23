@@ -3,9 +3,9 @@ from fastapi import APIRouter
 from .auth import auth_router
 from .chat import chat_router
 from .index import index_router
-from ..application.auth.auth import auth_backend
+from ..application.auth.auth_backend import auth_backend
 from ..application.auth.fastapi_users import fastapi_users
-from ..application.auth.models import UserRead, UserCreate
+from app.application.models.auth.user import UserRead, UserCreate
 
 root_router = APIRouter()
 
@@ -24,6 +24,7 @@ root_router.include_router(
 
 root_router.include_router(
     auth_router,
+    prefix="/auth",
     tags=["test"]
 
 )

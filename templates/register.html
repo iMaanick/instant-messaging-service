@@ -40,7 +40,7 @@
                     body: JSON.stringify(data)
                 });
                 if (response.ok) {
-                     window.location.href = '/login';
+                     window.location.href = '/auth/login';
                 } else {
                     const errorData = await response.json();
                     alert('Error: ' + errorData.detail);

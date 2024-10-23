@@ -1,8 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Request, Depends
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import RedirectResponse
 
 from app.adapters.sqlalchemy_db.gateway.user_sql_gateway import UserSqlaGateway
@@ -21,7 +19,7 @@ async def index(
         user: UserDB = Depends(fastapi_users.current_user(optional=True)),
 ):
     if user is None:
-        return RedirectResponse(url="/login")
+        return RedirectResponse(url="/auth/login")
 
     users = await database.get_users_excluding_current(user.id)
     return templates.TemplateResponse("users_list.html", {"request": request, "users": users})

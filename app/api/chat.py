@@ -9,7 +9,7 @@ from starlette.templating import Jinja2Templates
 from app.adapters.sqlalchemy_db.gateway.user_sql_gateway import UserSqlaGateway
 from app.adapters.sqlalchemy_db.models import MessageDB, UserDB
 from app.api.depends_stub import Stub
-from app.application.auth.auth import auth_backend
+from app.application.auth.auth_backend import auth_backend
 from app.application.auth.fastapi_users import fastapi_users
 from app.application.auth.user_manager import UserManager
 
@@ -104,9 +104,8 @@ async def chat_page(
         database: Annotated[UserSqlaGateway, Depends(Stub(UserSqlaGateway))],
         user: UserDB = Depends(fastapi_users.current_user(optional=True))
 ):
-    print("12123///////////////////////////////////")
     if user is None:
-        return RedirectResponse(url="/login")
+        return RedirectResponse(url="/auth/login")
     recipient_user = await database.get_user_by_id(recipient_id)
 
     if recipient_user is None:
