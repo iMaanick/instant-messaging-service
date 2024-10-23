@@ -116,8 +116,8 @@ async def chat_websocket(
                 current_user.id,
                 recipient_id,
                 text,
-                510326074,
-                recipient_user.username
+                recipient_user.telegram_user_id,
+                current_user.username
             )
     except WebSocketDisconnect:
         await manager.disconnect(websocket, current_user.id, recipient_id)
