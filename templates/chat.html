@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with User {{ recipient_user.username }}</title>
-    <style>
+    <title>Chat with User {{ recipient_username }}</title>
+<style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f9;
@@ -122,13 +122,21 @@
             }
         }
     </style>
-</head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            Chat with User {{ recipient_user.username }}
+            Chat with User {{ recipient_username }}
         </div>
         <div class="chat-box" id="chat-box">
+            {% for message in messages %}
+                <div class="message {% if message.sender_id == current_user_id %}from-me{% else %}from-other{% endif %}">
+                    {% if message.sender_id == current_user_id %}
+                        You: {{ message.text }}
+                    {% else %}
+                        {{ recipient_username }}: {{ message.text }}
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
         <div class="chat-footer">
             <input type="text" id="message-input" placeholder="Введите сообщение...">
@@ -136,25 +144,22 @@
         </div>
     </div>
 
-
 <script>
-    const ws = new WebSocket(`ws://localhost:8000/chat/ws/{{ recipient_user.id }}`);
+    const ws = new WebSocket(`ws://localhost:8000/chat/ws/{{ recipient_user_id }}`);
 
     ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
         const senderId = data.sender_id;
         const messageText = data.message;
-        const prefix_name = data.prefix_name;
-
 
         const chatBox = document.getElementById('chat-box');
         const messageElement = document.createElement('div');
-        if (senderId === {{ current_user.id }}) {
+        if (senderId === {{ current_user_id }}) {
             messageElement.classList.add('message', 'from-me');
-            messageElement.textContent = prefix_name + ": " + messageText;
+            messageElement.textContent = "You: " + messageText;
         } else {
             messageElement.classList.add('message', 'from-other');
-            messageElement.textContent = prefix_name + ": " + messageText;
+            messageElement.textContent = "{{ recipient_username }}" + ": " + messageText;
         }
 
         chatBox.appendChild(messageElement);
@@ -171,7 +176,6 @@
         };
 
         ws.send(JSON.stringify(messageData));
-
     }
 </script>
 

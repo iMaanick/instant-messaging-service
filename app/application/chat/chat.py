@@ -1,9 +1,9 @@
 import json
-from typing import Optional
+from typing import Optional, List
 
 from starlette.websockets import WebSocket
 
-from app.adapters.sqlalchemy_db.models import UserDB
+from app.adapters.sqlalchemy_db.models import UserDB, MessageDB
 from app.application.auth.auth_backend import auth_backend
 from app.application.auth.user_manager import UserManager
 from app.application.protocols.database.message_database_gateway import MessageDataBaseGateway
@@ -47,3 +47,12 @@ async def add_message(
     await database.add_message(sender_id, recipient_id, text)
     await uow.commit()
     return
+
+
+async def get_messages_between_users(
+        database: MessageDataBaseGateway,
+        first_user_id: int,
+        second_user_id: int
+) -> List[MessageDB]:
+    messages = await database.get_messages_between_users(first_user_id, second_user_id)
+    return messages

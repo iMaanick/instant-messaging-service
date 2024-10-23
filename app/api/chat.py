@@ -10,7 +10,8 @@ from app.adapters.sqlalchemy_db.models import MessageDB, UserDB
 from app.api.depends_stub import Stub
 from app.application.auth.fastapi_users import fastapi_users
 from app.application.auth.user_manager import UserManager
-from app.application.chat.chat import get_user_by_id, get_user_by_cookie, get_message, add_message
+from app.application.chat.chat import get_user_by_id, get_user_by_cookie, get_message, add_message, \
+    get_messages_between_users
 from app.application.protocols.database.message_database_gateway import MessageDataBaseGateway
 from app.application.protocols.database.uow import UoW
 from app.application.protocols.database.user_database_gateway import UserDataBaseGateway
@@ -45,18 +46,16 @@ class ConnectionManager:
         await self.broadcast(
             {
                 "sender_id": sender_id,
-                "prefix_name": "You",
                 "message": text
             },
             sender_id,
             recipient_id
         )
 
-    async def display_message_to_recipient(self, sender_id: int, sender_name: str, recipient_id: int, text: str):
+    async def display_message_to_recipient(self, sender_id: int, recipient_id: int, text: str):
         await self.broadcast(
             {
                 "sender_id": sender_id,
-                "prefix_name": sender_name,
                 "message": text
             },
             recipient_id,
@@ -105,7 +104,6 @@ async def chat_websocket(
             )
             await manager.display_message_to_recipient(
                 current_user.id,
-                current_user.username,
                 recipient_id,
                 text
             )
@@ -117,22 +115,26 @@ async def chat_websocket(
 async def chat_page(
         request: Request,
         recipient_id: int,
-        database: Annotated[UserDataBaseGateway, Depends(Stub(UserDataBaseGateway))],
+        user_database: Annotated[UserDataBaseGateway, Depends(Stub(UserDataBaseGateway))],
+        message_database: Annotated[MessageDataBaseGateway, Depends(Stub(MessageDataBaseGateway))],
         user: UserDB = Depends(fastapi_users.current_user(optional=True))
 ) -> Response:
     if user is None:
         return RedirectResponse(url="/auth/login")
 
-    recipient_user = await get_user_by_id(database, recipient_id)
+    recipient_user = await get_user_by_id(user_database, recipient_id)
 
     if recipient_user is None or recipient_user.id == user.id:
         return RedirectResponse(url="/")
 
+    messages = await get_messages_between_users(message_database, user.id, recipient_user.id)
     return templates.TemplateResponse(
         "chat.html",
         {
             "request": request,
-            "recipient_user": recipient_user,
-            "current_user": user,
+            "recipient_user_id": recipient_user.id,
+            "recipient_username": recipient_user.username,
+            "current_user_id": user.id,
+            "messages": messages
         }
     )
