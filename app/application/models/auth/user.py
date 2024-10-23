@@ -11,6 +11,7 @@ class UserRead(schemas.BaseUser[int]):
     is_active: bool = True
     is_superuser: bool = False
     is_verified: bool = False
+    telegram_user_id: int
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -22,3 +23,4 @@ class UserCreate(schemas.BaseUserCreate):
     is_active: Optional[bool] = True
     is_superuser: Optional[bool] = False
     is_verified: Optional[bool] = False
+    telegram_user_id: int

@@ -4,18 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #4a76a8;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4a76a8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3a5d85;
+        }
+
+        @media (max-width: 600px) {
+            .register-container {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Register</h1>
-    <form id="registerForm">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username" required><br><br>
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br><br>
-        <button type="submit">Register</button>
-    </form>
+    <div class="register-container">
+        <h1>Register</h1>
+        <form id="registerForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="telegram_user_id">Telegram User ID:</label>
+            <input type="text" id="telegram_user_id" name="telegram_user_id">
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
 
     <script>
         document.getElementById('registerForm').addEventListener('submit', async (event) => {
@@ -24,11 +97,19 @@
             const username = document.getElementById('username').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const telegramUserId = document.getElementById('telegram_user_id').value;
 
+            if (telegramUserId && !/^\d+$/.test(telegramUserId)) {
+                alert('Telegram User ID must be an integer.');
+                return;
+            }
+            console.log(telegramUserId)
+            console.log(typeof(telegramUserId))
             const data = {
                 email: email,
                 password: password,
-                username: username
+                username: username,
+                telegram_user_id: parseInt(telegramUserId)
             };
 
             try {
@@ -40,7 +121,7 @@
                     body: JSON.stringify(data)
                 });
                 if (response.ok) {
-                     window.location.href = '/auth/login';
+                    window.location.href = '/auth/login';
                 } else {
                     const errorData = await response.json();
                     alert('Error: ' + errorData.detail);

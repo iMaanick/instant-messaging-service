@@ -17,4 +17,4 @@ class UserDB(SQLAlchemyBaseUserTable[int], Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    telegram_user_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    telegram_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
