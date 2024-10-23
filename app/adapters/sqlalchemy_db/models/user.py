@@ -2,12 +2,9 @@ from typing import TYPE_CHECKING
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
 from sqlalchemy import Integer, String, Boolean
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy.orm import mapped_column, Mapped
 
 from app.adapters.sqlalchemy_db.models.base import Base
-
-if TYPE_CHECKING:
-    from app.adapters.sqlalchemy_db.models import MessageDB
 
 
 class UserDB(SQLAlchemyBaseUserTable[int], Base):
@@ -21,8 +18,3 @@ class UserDB(SQLAlchemyBaseUserTable[int], Base):
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     telegram_user_id: Mapped[int] = mapped_column(Integer, nullable=True)
-
-    sent_messages: Mapped[list["MessageDB"]] = relationship("MessageDB", foreign_keys="MessageDB.from_user_id",
-                                                            back_populates="from_user")
-    received_messages: Mapped[list["MessageDB"]] = relationship("MessageDB", foreign_keys="MessageDB.to_user_id",
-                                                                back_populates="to_user")

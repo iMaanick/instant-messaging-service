@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with User {{ recipient_id }}</title>
+    <title>Chat with User {{ recipient_user.username }}</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -110,7 +110,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Адаптивный дизайн */
         @media (max-width: 600px) {
             .chat-container {
                 width: 100%;
@@ -127,7 +126,7 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            Chat with User {{ recipient_id }}
+            Chat with User {{ recipient_user.username }}
         </div>
         <div class="chat-box" id="chat-box">
         </div>
@@ -139,21 +138,23 @@
 
 
 <script>
-    const ws = new WebSocket(`ws://localhost:8000/chat/ws/{{ recipient_id }}`);
+    const ws = new WebSocket(`ws://localhost:8000/chat/ws/{{ recipient_user.id }}`);
 
     ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
         const senderId = data.sender_id;
         const messageText = data.message;
+        const prefix_name = data.prefix_name;
+
 
         const chatBox = document.getElementById('chat-box');
         const messageElement = document.createElement('div');
         if (senderId === {{ current_user.id }}) {
             messageElement.classList.add('message', 'from-me');
-            messageElement.textContent = "You: " + messageText;
+            messageElement.textContent = prefix_name + ": " + messageText;
         } else {
             messageElement.classList.add('message', 'from-other');
-            messageElement.textContent = data.sender_name + ": " + messageText;
+            messageElement.textContent = prefix_name + ": " + messageText;
         }
 
         chatBox.appendChild(messageElement);
@@ -166,9 +167,7 @@
         input.value = '';
 
         const messageData = {
-            sender_id: {{ current_user.id }},
-            message: message,
-            recipient_id: {{ recipient_id }}
+            "message": message,
         };
 
         ws.send(JSON.stringify(messageData));

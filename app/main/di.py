@@ -9,12 +9,15 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from app.adapters.sqlalchemy_db.gateway.gateway import SqlaGateway
+from app.adapters.sqlalchemy_db.gateway.message_sql_gateway import MessageSqlaGateway
 from app.adapters.sqlalchemy_db.gateway.user_sql_gateway import UserSqlaGateway
 from app.adapters.sqlalchemy_db.models import UserDB
 from app.api.depends_stub import Stub
 from app.application.auth.user_manager import UserManager, get_user_manager
 from app.application.protocols.database.database_gateway import DatabaseGateway
+from app.application.protocols.database.message_database_gateway import MessageDataBaseGateway
 from app.application.protocols.database.uow import UoW
+from app.application.protocols.database.user_database_gateway import UserDataBaseGateway
 
 logger = getLogger(__name__)
 
@@ -37,6 +40,10 @@ async def new_gateway(session: AsyncSession = Depends(Stub(AsyncSession))):
 
 async def new_user_gateway(session: AsyncSession = Depends(Stub(AsyncSession))):
     yield UserSqlaGateway(session)
+
+
+async def new_message_gateway(session: AsyncSession = Depends(Stub(AsyncSession))):
+    yield MessageSqlaGateway(session)
 
 
 async def new_uow(session: AsyncSession = Depends(Stub(AsyncSession))):
@@ -75,7 +82,8 @@ def init_dependencies(app: FastAPI):
 
     app.dependency_overrides[AsyncSession] = partial(new_session, session_maker)
     app.dependency_overrides[DatabaseGateway] = new_gateway
-    app.dependency_overrides[UserSqlaGateway] = new_user_gateway
+    app.dependency_overrides[UserDataBaseGateway] = new_user_gateway
+    app.dependency_overrides[MessageDataBaseGateway] = new_message_gateway
 
     app.dependency_overrides[SQLAlchemyUserDatabase] = get_new_user_db
     app.dependency_overrides[UserManager] = get_user_manager

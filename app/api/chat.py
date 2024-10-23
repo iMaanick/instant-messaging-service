@@ -1,17 +1,19 @@
-import json
 from typing import Dict, List, Annotated
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.responses import RedirectResponse
+from starlette.responses import RedirectResponse, Response
 from starlette.templating import Jinja2Templates
 
 from app.adapters.sqlalchemy_db.gateway.user_sql_gateway import UserSqlaGateway
 from app.adapters.sqlalchemy_db.models import MessageDB, UserDB
 from app.api.depends_stub import Stub
-from app.application.auth.auth_backend import auth_backend
 from app.application.auth.fastapi_users import fastapi_users
 from app.application.auth.user_manager import UserManager
+from app.application.chat.chat import get_user_by_id, get_user_by_cookie, get_message, add_message
+from app.application.protocols.database.message_database_gateway import MessageDataBaseGateway
+from app.application.protocols.database.uow import UoW
+from app.application.protocols.database.user_database_gateway import UserDataBaseGateway
 
 chat_router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -30,14 +32,36 @@ class ConnectionManager:
             self.active_connections[from_user_id][to_user_id] = []
         self.active_connections[from_user_id][to_user_id].append(websocket)
 
-    def disconnect(self, websocket: WebSocket, from_user_id: int, to_user_id: int):
+    async def disconnect(self, websocket: WebSocket, from_user_id: int, to_user_id: int):
         self.active_connections[from_user_id][to_user_id].remove(websocket)
 
-    async def broadcast(self, message: dict, from_user_id: int, to_user_id: int):
-        from_user_connections = self.active_connections.get(from_user_id, {})
-        connections = from_user_connections.get(to_user_id, [])
+    async def broadcast(self, message_data: dict, user_id: int, interlocutor_id: int):
+        user_connections = self.active_connections.get(user_id, {})
+        connections = user_connections.get(interlocutor_id, [])
         for connection in connections:
-            await connection.send_json(message)
+            await connection.send_json(message_data)
+
+    async def display_message_to_sender(self, sender_id: int, recipient_id: int, text: str):
+        await self.broadcast(
+            {
+                "sender_id": sender_id,
+                "prefix_name": "You",
+                "message": text
+            },
+            sender_id,
+            recipient_id
+        )
+
+    async def display_message_to_recipient(self, sender_id: int, sender_name: str, recipient_id: int, text: str):
+        await self.broadcast(
+            {
+                "sender_id": sender_id,
+                "prefix_name": sender_name,
+                "message": text
+            },
+            recipient_id,
+            sender_id
+        )
 
 
 manager = ConnectionManager()
@@ -47,14 +71,17 @@ manager = ConnectionManager()
 async def chat_websocket(
         websocket: WebSocket,
         recipient_id: int,
-        database: Annotated[UserSqlaGateway, Depends(Stub(UserSqlaGateway))],
-        session: AsyncSession = Depends(Stub(AsyncSession)),
+        user_database: Annotated[UserDataBaseGateway, Depends(Stub(UserDataBaseGateway))],
+        message_database: Annotated[MessageDataBaseGateway, Depends(Stub(MessageDataBaseGateway))],
+        uow: Annotated[UoW, Depends()],
         user_manager: UserManager = Depends(Stub(UserManager)),
 ):
-    cookie = websocket.cookies.get("fastapiusersauth")
-    current_user = await auth_backend.get_strategy().read_token(cookie, user_manager)
+    current_user = await get_user_by_cookie(user_manager, websocket)
 
-    recipient_user = await database.get_user_by_id(recipient_id)
+    if current_user is None:
+        return
+
+    recipient_user = await get_user_by_id(user_database, recipient_id)
 
     if recipient_user is None:
         return
@@ -62,57 +89,50 @@ async def chat_websocket(
     await manager.connect(websocket, current_user.id, recipient_id)
     try:
         while True:
-            data = await websocket.receive_text()
-            message_data = json.loads(data)
-            message = message_data["message"]
+            text = await get_message(websocket)
 
-            new_message = MessageDB(
-                from_user_id=current_user.id,
-                to_user_id=recipient_id,
-                text=message
-            )
-            session.add(new_message)
-            await session.commit()
-            await session.refresh(new_message)
-
-            await manager.broadcast(
-                {
-                    "sender_id": current_user.id,
-                    "sender_name": "You",
-                    "message": message
-                },
+            await add_message(
+                message_database,
+                uow,
                 current_user.id,
-                recipient_id
+                recipient_user.id,
+                text
             )
-            await manager.broadcast(
-                {
-                    "sender_id": current_user.id,
-                    "sender_name": recipient_user.username,
-                    "message": message
-                },
+            await manager.display_message_to_sender(
+                current_user.id,
                 recipient_id,
-                current_user.id
+                text
+            )
+            await manager.display_message_to_recipient(
+                current_user.id,
+                current_user.username,
+                recipient_id,
+                text
             )
     except WebSocketDisconnect:
-        manager.disconnect(websocket, current_user.id, recipient_id)
+        await manager.disconnect(websocket, current_user.id, recipient_id)
 
 
-@chat_router.get("/{recipient_id}")
+@chat_router.get("/{recipient_id}", response_class=Response)
 async def chat_page(
         request: Request,
         recipient_id: int,
-        database: Annotated[UserSqlaGateway, Depends(Stub(UserSqlaGateway))],
+        database: Annotated[UserDataBaseGateway, Depends(Stub(UserDataBaseGateway))],
         user: UserDB = Depends(fastapi_users.current_user(optional=True))
-):
+) -> Response:
     if user is None:
         return RedirectResponse(url="/auth/login")
-    recipient_user = await database.get_user_by_id(recipient_id)
 
-    if recipient_user is None:
+    recipient_user = await get_user_by_id(database, recipient_id)
+
+    if recipient_user is None or recipient_user.id == user.id:
         return RedirectResponse(url="/")
 
-    return templates.TemplateResponse("chat.html", {"request": request,
-                                                    "recipient_id": recipient_id,
-                                                    "current_user": user,
-                                                    "current_user_id": user.id
-                                                    })
+    return templates.TemplateResponse(
+        "chat.html",
+        {
+            "request": request,
+            "recipient_user": recipient_user,
+            "current_user": user,
+        }
+    )

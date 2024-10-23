@@ -1,8 +1,8 @@
-"""_
+"""change field name
 
-Revision ID: 4ad914cd1b79
-Revises: 
-Create Date: 2024-10-23 09:52:06.745612
+Revision ID: 54ae7b835268
+Revises: a47611c93339
+Create Date: 2024-10-23 11:18:54.459612
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4ad914cd1b79'
-down_revision: Union[str, None] = None
+revision: str = '54ae7b835268'
+down_revision: Union[str, None] = 'a47611c93339'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
