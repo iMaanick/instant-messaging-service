@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Integer, String, Boolean
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from app.adapters.sqlalchemy_db.models.base import Base
 
 if TYPE_CHECKING:
-    from ..chat import MessageDB
+    from app.adapters.sqlalchemy_db.models import MessageDB
 
 
 class UserDB(SQLAlchemyBaseUserTable[int], Base):

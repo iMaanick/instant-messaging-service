@@ -6,7 +6,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from app.adapters.sqlalchemy_db.models import Base
 
 if TYPE_CHECKING:
-    from ..auth import UserDB
+    from app.adapters.sqlalchemy_db.models import UserDB
 
 
 class MessageDB(Base):

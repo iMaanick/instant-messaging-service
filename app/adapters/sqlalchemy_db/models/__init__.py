@@ -5,5 +5,5 @@ __all__ = (
 
 )
 from .base import Base
-from .auth import UserDB
-from .chat import MessageDB
+from .user import UserDB
+from .message import MessageDB
