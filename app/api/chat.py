@@ -15,6 +15,7 @@ from app.application.chat.chat import get_user_by_id, get_user_by_cookie, get_me
 from app.application.protocols.database.message_database_gateway import MessageDataBaseGateway
 from app.application.protocols.database.uow import UoW
 from app.application.protocols.database.user_database_gateway import UserDataBaseGateway
+from app.main.celery_app import send_notification_via_api
 
 chat_router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -52,7 +53,16 @@ class ConnectionManager:
             recipient_id
         )
 
-    async def display_message_to_recipient(self, sender_id: int, recipient_id: int, text: str):
+    async def display_message_to_recipient(
+            self,
+            sender_id: int,
+            recipient_id: int,
+            text: str,
+            telegram_id: int,
+            recipient_username: str
+    ):
+        if recipient_id not in manager.active_connections:
+            send_notification_via_api.delay(telegram_id, f'У вас новое сообщение: от {recipient_username}')
         await self.broadcast(
             {
                 "sender_id": sender_id,
@@ -105,7 +115,9 @@ async def chat_websocket(
             await manager.display_message_to_recipient(
                 current_user.id,
                 recipient_id,
-                text
+                text,
+                510326074,
+                recipient_user.username
             )
     except WebSocketDisconnect:
         await manager.disconnect(websocket, current_user.id, recipient_id)
