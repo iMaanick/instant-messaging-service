@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 fastapi = "^0.115.2"
-fastapi-users = {extras = ["redis"], version = "^13.0.0"}
+fastapi-users = {extras = ["sqlalchemy"], version = "^13.0.0"}
 uvicorn = {extras = ["standard"], version = "^0.32.0"}
 aiosqlite = "^0.20.0"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.36"}

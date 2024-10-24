@@ -97,11 +97,10 @@
       </div>
     </nav>
 
-    <!-- Login Form -->
     <div class="login-container mt-5">
       <h1>Login</h1>
       <form id="loginForm">
-        <label for="username">Username:</label>
+        <label for="username">Email:</label>
         <input type="text" id="username" name="username" required>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
@@ -116,7 +115,7 @@
           const formData = new FormData(document.getElementById('loginForm'));
 
           try {
-              const response = await fetch('/auth/jwt/login', {
+              const response = await fetch('/auth/redis/login', {
                   method: 'POST',
                   body: new URLSearchParams(formData),
               });

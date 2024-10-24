@@ -1,8 +1,8 @@
 """telegram_user_id nullable False
 
-Revision ID: e76b2020de45
+Revision ID: 41f926c7ebbd
 Revises: 
-Create Date: 2024-10-23 20:11:41.155190
+Create Date: 2024-10-24 10:58:59.262847
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'e76b2020de45'
+revision: str = '41f926c7ebbd'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

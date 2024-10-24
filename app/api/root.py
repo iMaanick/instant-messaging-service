@@ -12,7 +12,7 @@ root_router = APIRouter()
 
 root_router.include_router(
     fastapi_users.get_auth_router(auth_backend),
-    prefix="/auth/jwt",
+    prefix="/auth/redis",
     tags=["auth"],
 )
 
