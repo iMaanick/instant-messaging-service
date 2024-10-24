@@ -36,6 +36,11 @@ class ConnectionManager:
 
     async def disconnect(self, websocket: WebSocket, from_user_id: int, to_user_id: int):
         self.active_connections[from_user_id][to_user_id].remove(websocket)
+        if not self.active_connections[from_user_id][to_user_id]:
+            del self.active_connections[from_user_id][to_user_id]
+
+        if not self.active_connections[from_user_id]:
+            del self.active_connections[from_user_id]
 
     async def broadcast(self, message_data: dict, user_id: int, interlocutor_id: int):
         user_connections = self.active_connections.get(user_id, {})
@@ -61,8 +66,8 @@ class ConnectionManager:
             telegram_id: int,
             recipient_username: str
     ):
-        # if recipient_id not in manager.active_connections:
-        #     send_notification_via_api.delay(telegram_id, f'У вас новое сообщение: от {recipient_username}')
+        if recipient_id not in manager.active_connections or manager.active_connections[recipient_id] is []:
+            send_notification_via_api.delay(telegram_id, f'У вас новое сообщение: от {recipient_username}')
         await self.broadcast(
             {
                 "sender_id": sender_id,

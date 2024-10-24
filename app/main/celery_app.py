@@ -1,11 +1,10 @@
 import os
-from dotenv import load_dotenv
 
 import requests
 from celery import Celery
+from dotenv import load_dotenv
 
-
-celery_app = Celery('tasks', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+celery_app = Celery('tasks', broker='redis://localhost:6379/0')
 
 celery_app.conf.update(
     task_serializer='json',
@@ -16,7 +15,7 @@ celery_app.conf.update(
 )
 
 
-@celery_app.task
+@celery_app.task(name="send_notification_via_api")
 def send_notification_via_api(chat_id: int, text: str):
     load_dotenv()
     api_token = os.environ.get("TOKEN")
@@ -34,3 +33,4 @@ def send_notification_via_api(chat_id: int, text: str):
         print(f"HTTP error occurred: {http_err}")
     except Exception as err:
         print(f"Other error occurred: {err}")
+
