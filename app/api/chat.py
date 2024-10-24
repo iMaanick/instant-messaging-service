@@ -61,8 +61,8 @@ class ConnectionManager:
             telegram_id: int,
             recipient_username: str
     ):
-        if recipient_id not in manager.active_connections:
-            send_notification_via_api.delay(telegram_id, f'У вас новое сообщение: от {recipient_username}')
+        # if recipient_id not in manager.active_connections:
+        #     send_notification_via_api.delay(telegram_id, f'У вас новое сообщение: от {recipient_username}')
         await self.broadcast(
             {
                 "sender_id": sender_id,
