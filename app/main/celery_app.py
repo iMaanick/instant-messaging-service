@@ -16,7 +16,7 @@ celery_app.conf.update(
 
 
 @celery_app.task(name="send_notification_via_api")
-def send_notification_via_api(chat_id: int, text: str):
+def send_notification_via_api(chat_id: int, text: str) -> None:
     load_dotenv()
     api_token = os.environ.get("TOKEN")
     url = f"https://api.telegram.org/bot{api_token}/sendMessage"
@@ -28,7 +28,7 @@ def send_notification_via_api(chat_id: int, text: str):
     try:
         response = requests.post(url, json=payload)
         response.raise_for_status()
-        return response.json()
+        print(response.json())
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except Exception as err:

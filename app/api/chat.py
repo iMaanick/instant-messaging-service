@@ -17,7 +17,7 @@ from app.application.protocols.database.user_database_gateway import UserDataBas
 
 chat_router = APIRouter(prefix="/chat", tags=["chat"])
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="app/templates")
 
 manager = ConnectionManager()
 
@@ -30,7 +30,10 @@ async def chat_websocket(
         message_database: Annotated[MessageDataBaseGateway, Depends(Stub(MessageDataBaseGateway))],
         uow: Annotated[UoW, Depends()],
         user_manager: UserManager = Depends(Stub(UserManager)),
-):
+) -> None:
+    """
+        Handles WebSocket connections for real-time chat between users.
+    """
     current_user = await get_user_by_cookie(user_manager, websocket)
 
     if current_user is None:
@@ -77,6 +80,20 @@ async def chat_page(
         message_database: Annotated[MessageDataBaseGateway, Depends(Stub(MessageDataBaseGateway))],
         user: UserDB = Depends(fastapi_users.current_user(optional=True))
 ) -> Response:
+    """
+       Renders the chat page for the current user to chat with a specified recipient.
+
+       This endpoint retrieves the chat history between the current user and the recipient
+       specified by recipient_id. If the user is not authenticated or the recipient is invalid,
+       the user is redirected accordingly.
+
+       Returns:
+           Response: The rendered chat page or a redirect response.
+
+       Redirects:
+           - To the login page if the user is not authenticated.
+           - To the index page if the recipient is invalid or is the same as the current user.
+    """
     if user is None:
         return RedirectResponse(url="/auth/login")
 

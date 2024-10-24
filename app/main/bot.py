@@ -24,7 +24,10 @@ async def set_commands(bot: Bot) -> None:
 async def main() -> None:
     load_dotenv()
     dp = Dispatcher()
-    bot = Bot(token=os.environ.get("TOKEN"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    token = os.getenv('TOKEN')
+    if not token:
+        raise ValueError("TOKEN env variable is not set")
+    bot = Bot(token=token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp.message.register(command_start_handler, Command("start", prefix="/"))
     await set_commands(bot)
     await dp.start_polling(bot)

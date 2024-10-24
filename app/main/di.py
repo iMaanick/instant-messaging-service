@@ -1,12 +1,13 @@
 import os
 from functools import partial
 from logging import getLogger
-from typing import Iterable
+from typing import Iterable, Generator, AsyncGenerator
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
-from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase, SQLAlchemyBaseUserTable
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.orm import DeclarativeBase
 
 from app.adapters.sqlalchemy_db.gateway.message_sql_gateway import MessageSqlaGateway
 from app.adapters.sqlalchemy_db.gateway.user_sql_gateway import UserSqlaGateway
@@ -32,24 +33,31 @@ def all_depends(cls: type) -> None:
     )
 
 
-
-async def new_user_gateway(session: AsyncSession = Depends(Stub(AsyncSession))):
+async def new_user_gateway(
+        session: AsyncSession = Depends(Stub(AsyncSession))
+) -> AsyncGenerator[UserSqlaGateway, None]:
     yield UserSqlaGateway(session)
 
 
-async def new_message_gateway(session: AsyncSession = Depends(Stub(AsyncSession))):
+async def new_message_gateway(
+        session: AsyncSession = Depends(Stub(AsyncSession))
+) -> AsyncGenerator[MessageSqlaGateway, None]:
     yield MessageSqlaGateway(session)
 
 
-async def new_uow(session: AsyncSession = Depends(Stub(AsyncSession))):
+async def new_uow(
+        session: AsyncSession = Depends(Stub(AsyncSession))
+) -> AsyncSession:
     return session
 
 
-async def get_new_user_db(session: AsyncSession = Depends(Stub(AsyncSession))):
+async def get_new_user_db(
+        session: AsyncSession = Depends(Stub(AsyncSession))
+) -> AsyncGenerator[SQLAlchemyUserDatabase, None]:
     yield SQLAlchemyUserDatabase(session, UserDB)
 
 
-def create_session_maker():
+def create_session_maker() -> async_sessionmaker[AsyncSession]:
     load_dotenv()
     db_uri = os.getenv('DATABASE_URI')
     if not db_uri:
@@ -67,12 +75,12 @@ def create_session_maker():
     return async_sessionmaker(engine, autoflush=False, expire_on_commit=False)
 
 
-async def new_session(session_maker: async_sessionmaker) -> Iterable[AsyncSession]:
+async def new_session(session_maker: async_sessionmaker[AsyncSession]) -> AsyncGenerator[AsyncSession, None]:
     async with session_maker() as session:
         yield session
 
 
-def init_dependencies(app: FastAPI):
+def init_dependencies(app: FastAPI) -> None:
     session_maker = create_session_maker()
 
     app.dependency_overrides[AsyncSession] = partial(new_session, session_maker)
