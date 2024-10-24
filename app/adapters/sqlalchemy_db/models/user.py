@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy import Integer, String, Boolean
+from sqlalchemy import Integer, String, Boolean, BigInteger
 from sqlalchemy.orm import mapped_column, Mapped
 
 from app.adapters.sqlalchemy_db.models.base import Base
@@ -17,4 +17,4 @@ class UserDB(SQLAlchemyBaseUserTable[int], Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    telegram_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    telegram_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)

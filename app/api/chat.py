@@ -1,82 +1,23 @@
-from typing import Dict, List, Annotated
+from typing import Annotated
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Request
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import RedirectResponse, Response
 from starlette.templating import Jinja2Templates
 
-from app.adapters.sqlalchemy_db.gateway.user_sql_gateway import UserSqlaGateway
-from app.adapters.sqlalchemy_db.models import MessageDB, UserDB
+from app.adapters.sqlalchemy_db.models import UserDB
 from app.api.depends_stub import Stub
 from app.application.auth.fastapi_users import fastapi_users
 from app.application.auth.user_manager import UserManager
 from app.application.chat.chat import get_user_by_id, get_user_by_cookie, get_message, add_message, \
     get_messages_between_users
+from app.application.chat.connection_manager import ConnectionManager
 from app.application.protocols.database.message_database_gateway import MessageDataBaseGateway
 from app.application.protocols.database.uow import UoW
 from app.application.protocols.database.user_database_gateway import UserDataBaseGateway
-from app.main.celery_app import send_notification_via_api
 
 chat_router = APIRouter(prefix="/chat", tags=["chat"])
 
 templates = Jinja2Templates(directory="templates")
-
-
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: Dict[int, Dict[int, List[WebSocket]]] = {}
-
-    async def connect(self, websocket: WebSocket, from_user_id: int, to_user_id: int):
-        await websocket.accept()
-        if from_user_id not in self.active_connections:
-            self.active_connections[from_user_id] = {}
-        if to_user_id not in self.active_connections[from_user_id]:
-            self.active_connections[from_user_id][to_user_id] = []
-        self.active_connections[from_user_id][to_user_id].append(websocket)
-
-    async def disconnect(self, websocket: WebSocket, from_user_id: int, to_user_id: int):
-        self.active_connections[from_user_id][to_user_id].remove(websocket)
-        if not self.active_connections[from_user_id][to_user_id]:
-            del self.active_connections[from_user_id][to_user_id]
-
-        if not self.active_connections[from_user_id]:
-            del self.active_connections[from_user_id]
-
-    async def broadcast(self, message_data: dict, user_id: int, interlocutor_id: int):
-        user_connections = self.active_connections.get(user_id, {})
-        connections = user_connections.get(interlocutor_id, [])
-        for connection in connections:
-            await connection.send_json(message_data)
-
-    async def display_message_to_sender(self, sender_id: int, recipient_id: int, text: str):
-        await self.broadcast(
-            {
-                "sender_id": sender_id,
-                "message": text
-            },
-            sender_id,
-            recipient_id
-        )
-
-    async def display_message_to_recipient(
-            self,
-            sender_id: int,
-            recipient_id: int,
-            text: str,
-            telegram_id: int,
-            recipient_username: str
-    ):
-        if recipient_id not in manager.active_connections or manager.active_connections[recipient_id] is []:
-            send_notification_via_api.delay(telegram_id, f'У вас новое сообщение: от {recipient_username}')
-        await self.broadcast(
-            {
-                "sender_id": sender_id,
-                "message": text
-            },
-            recipient_id,
-            sender_id
-        )
-
 
 manager = ConnectionManager()
 
